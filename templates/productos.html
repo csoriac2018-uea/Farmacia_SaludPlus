@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Productos | Farmacia SaludPlus{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="titulo-modulo">💊 Productos</h2>
+        <p class="text-muted mb-0">
+            Catálogo de productos disponibles en Farmacia SaludPlus.
+        </p>
+    </div>
+
+    <span class="badge bg-success fs-6">
+        Catálogo demostrativo
+    </span>
+</div>
+
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Presentación</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <strong>Paracetamol</strong>
+                            <br>
+                            <small class="text-muted">500 mg</small>
+                        </td>
+                        <td>Analgésico</td>
+                        <td>Caja x 20 tabletas</td>
+                        <td>$2.50</td>
+                        <td>50</td>
+                        <td>
+                            <span class="badge bg-success">Disponible</span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>
+                            <strong>Ibuprofeno</strong>
+                            <br>
+                            <small class="text-muted">400 mg</small>
+                        </td>
+                        <td>Antiinflamatorio</td>
+                        <td>Caja x 20 tabletas</td>
+                        <td>$3.75</td>
+                        <td>35</td>
+                        <td>
+                            <span class="badge bg-success">Disponible</span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>
+                            <strong>Vitamina C</strong>
+                            <br>
+                            <small class="text-muted">500 mg</small>
+                        </td>
+                        <td>Vitaminas</td>
+                        <td>Frasco x 30 tabletas</td>
+                        <td>$5.00</td>
+                        <td>25</td>
+                        <td>
+                            <span class="badge bg-success">Disponible</span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td>
+                            <strong>Alcohol</strong>
+                            <br>
+                            <small class="text-muted">70%</small>
+                        </td>
+                        <td>Higiene</td>
+                        <td>Frasco 500 ml</td>
+                        <td>$2.25</td>
+                        <td>40</td>
+                        <td>
+                            <span class="badge bg-success">Disponible</span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>5</td>
+                        <td>
+                            <strong>Jarabe para la tos</strong>
+                            <br>
+                            <small class="text-muted">120 ml</small>
+                        </td>
+                        <td>Respiratorio</td>
+                        <td>Frasco 120 ml</td>
+                        <td>$4.50</td>
+                        <td>12</td>
+                        <td>
+                            <span class="badge bg-warning text-dark">
+                                Bajo stock
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- INFORMACIÓN -->
+<div class="alert alert-info mt-4" role="alert">
+
+    <strong>Información:</strong>
+
+    Los productos mostrados son datos demostrativos utilizados
+    para el desarrollo del Proyecto Integrador.
+
+</div>
+
+{% endblock %}

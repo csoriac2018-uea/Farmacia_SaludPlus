@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Facturación | Farmacia SaludPlus{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="titulo-modulo">🧾 Facturación</h2>
+        <p class="text-muted mb-0">
+            Registro de ventas y facturas de Farmacia SaludPlus.
+        </p>
+    </div>
+
+    <span class="badge bg-success fs-6">
+        Datos demostrativos
+    </span>
+</div>
+
+
+<!-- RESUMEN -->
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h6 class="text-muted">Facturas registradas</h6>
+                <h2 class="text-success">24</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h6 class="text-muted">Ventas del día</h6>
+                <h2 class="text-success">$385.50</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h6 class="text-muted">Productos vendidos</h6>
+                <h2 class="text-success">67</h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- TABLA DE FACTURAS -->
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <h5 class="card-title mb-4">
+            Últimas facturas
+        </h5>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>N.º Factura</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Subtotal</th>
+                        <th>IVA</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>1</td>
+                        <td>001-001-000001</td>
+                        <td>María González</td>
+                        <td>16/08/2026</td>
+                        <td>$25.00</td>
+                        <td>$3.00</td>
+                        <td><strong>$28.00</strong></td>
+                        <td>
+                            <span class="badge bg-success">
+                                Pagada
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>001-001-000002</td>
+                        <td>Juan Pérez</td>
+                        <td>16/08/2026</td>
+                        <td>$18.50</td>
+                        <td>$2.22</td>
+                        <td><strong>$20.72</strong></td>
+                        <td>
+                            <span class="badge bg-success">
+                                Pagada
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>001-001-000003</td>
+                        <td>Ana Rodríguez</td>
+                        <td>15/08/2026</td>
+                        <td>$42.00</td>
+                        <td>$5.04</td>
+                        <td><strong>$47.04</strong></td>
+                        <td>
+                            <span class="badge bg-success">
+                                Pagada
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td>001-001-000004</td>
+                        <td>Carlos Mendoza</td>
+                        <td>15/08/2026</td>
+                        <td>$31.25</td>
+                        <td>$3.75</td>
+                        <td><strong>$35.00</strong></td>
+                        <td>
+                            <span class="badge bg-warning text-dark">
+                                Pendiente
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- INFORMACIÓN -->
+<div class="alert alert-info mt-4" role="alert">
+
+    <strong>Información:</strong>
+
+    Las facturas mostradas son datos ficticios utilizados
+    únicamente para demostrar el funcionamiento del módulo.
+    En esta etapa no se utiliza una base de datos.
+
+</div>
+
+{% endblock %}

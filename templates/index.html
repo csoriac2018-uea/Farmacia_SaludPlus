@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio | Farmacia SaludPlus{% endblock %}
+
+{% block content %}
+
+<!-- PRESENTACIÓN -->
+<section class="hero-farmacia text-center py-5 mb-5">
+    <div class="container">
+        <h2 class="display-4 fw-bold">Bienvenido a Farmacia SaludPlus</h2>
+
+        <p class="lead mt-3">
+            Cuidamos de tu salud con productos de calidad,
+            atención confiable y precios accesibles.
+        </p>
+
+        <a href="{{ url_for('productos') }}" class="btn btn-success btn-lg mt-3">
+            Ver nuestros productos
+        </a>
+    </div>
+</section>
+
+
+<!-- SERVICIOS -->
+<section class="mb-5">
+
+    <div class="text-center mb-4">
+        <h2>¿Qué ofrecemos?</h2>
+        <p class="text-muted">
+            Conoce los principales servicios de nuestra farmacia.
+        </p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- PRODUCTOS -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="icono-servicio">💊</div>
+
+                    <h3 class="card-title">Productos</h3>
+
+                    <p class="card-text">
+                        Medicamentos, vitaminas, productos de higiene
+                        y artículos para el cuidado personal.
+                    </p>
+
+                    <a href="{{ url_for('productos') }}"
+                       class="btn btn-outline-success">
+                        Ver productos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- CLIENTES -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="icono-servicio">👥</div>
+
+                    <h3 class="card-title">Clientes</h3>
+
+                    <p class="card-text">
+                        Consulta información de nuestros clientes
+                        registrados en el sistema.
+                    </p>
+
+                    <a href="{{ url_for('clientes') }}"
+                       class="btn btn-outline-success">
+                        Ver clientes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- FACTURACIÓN -->
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm text-center">
+                <div class="card-body">
+                    <div class="icono-servicio">🧾</div>
+
+                    <h3 class="card-title">Facturación</h3>
+
+                    <p class="card-text">
+                        Consulta facturas y registros de ventas
+                        de ejemplo del sistema.
+                    </p>
+
+                    <a href="{{ url_for('facturacion') }}"
+                       class="btn btn-outline-success">
+                        Ver facturación
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- INFORMACIÓN -->
+<section class="row align-items-center bg-light rounded p-4 mb-5">
+
+    <div class="col-md-7">
+
+        <h2>Tu salud es nuestra prioridad</h2>
+
+        <p>
+            En Farmacia SaludPlus trabajamos para ofrecer productos
+            farmacéuticos y artículos de cuidado personal con una
+            atención cercana y responsable.
+        </p>
+
+        <p>
+            Nuestro sistema permite organizar productos, clientes,
+            proveedores y facturación de manera sencilla.
+        </p>
+
+    </div>
+
+    <div class="col-md-5 text-center">
+
+        <div class="farmacia-icono">
+            🏥
+        </div>
+
+        <h4 class="mt-3">Farmacia SaludPlus</h4>
+
+    </div>
+
+</section>
+
+{% endblock %}

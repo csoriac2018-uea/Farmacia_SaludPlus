@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Proveedores | Farmacia SaludPlus{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="titulo-modulo">🚚 Proveedores</h2>
+        <p class="text-muted mb-0">
+            Registro de proveedores de medicamentos y productos farmacéuticos.
+        </p>
+    </div>
+
+    <span class="badge bg-info text-dark fs-6">
+        Registro demostrativo
+    </span>
+</div>
+
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="table-responsive">
+
+            <table class="table table-hover align-middle">
+
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Proveedor</th>
+                        <th>RUC</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Producto suministrado</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <strong>Distribuidora Farma Ecuador</strong>
+                        </td>
+                        <td>0991234567001</td>
+                        <td>0991112233</td>
+                        <td>ventas@farmaecuador.com</td>
+                        <td>Medicamentos</td>
+                        <td>
+                            <span class="badge bg-success">
+                                Activo
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>2</td>
+                        <td>
+                            <strong>Laboratorios Salud S.A.</strong>
+                        </td>
+                        <td>0992345678001</td>
+                        <td>0982223344</td>
+                        <td>contacto@salud.com</td>
+                        <td>Vitaminas</td>
+                        <td>
+                            <span class="badge bg-success">
+                                Activo
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>3</td>
+                        <td>
+                            <strong>Higiene y Cuidado Cía. Ltda.</strong>
+                        </td>
+                        <td>0993456789001</td>
+                        <td>0973334455</td>
+                        <td>ventas@higieneycuidado.com</td>
+                        <td>Higiene personal</td>
+                        <td>
+                            <span class="badge bg-success">
+                                Activo
+                            </span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>4</td>
+                        <td>
+                            <strong>Farmacéutica Nacional</strong>
+                        </td>
+                        <td>0994567890001</td>
+                        <td>0964445566</td>
+                        <td>info@farmaceuticanacional.com</td>
+                        <td>Productos farmacéuticos</td>
+                        <td>
+                            <span class="badge bg-warning text-dark">
+                                Pendiente
+                            </span>
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+
+<div class="alert alert-info mt-4" role="alert">
+
+    <strong>Información:</strong>
+
+    Los proveedores mostrados son datos ficticios utilizados
+    únicamente para demostrar el funcionamiento del módulo.
+
+</div>
+
+{% endblock %}
