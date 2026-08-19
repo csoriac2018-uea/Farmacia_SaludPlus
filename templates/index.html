@@ -7,7 +7,7 @@
 <!-- PRESENTACIÓN -->
 <section class="hero-farmacia text-center py-5 mb-5">
     <div class="container">
-        <h2 class="display-4 fw-bold">Bienvenido a Farmacia SaludPlus</h2>
+        <h2 class="display-4 fw-bold">Bienvenido a {{ farmacia.nombre }}</h2>
 
         <p class="lead mt-3">
             Cuidamos de tu salud con productos de calidad,
@@ -18,6 +18,12 @@
             Ver nuestros productos
         </a>
     </div>
+</section>
+
+<section class="row g-3 mb-5 text-center">
+    <div class="col-md-4"><div class="card h-100 shadow-sm"><div class="card-body"><h6 class="text-muted">Productos</h6><strong class="fs-3 text-success">{{ resumen.productos }}</strong></div></div></div>
+    <div class="col-md-4"><div class="card h-100 shadow-sm"><div class="card-body"><h6 class="text-muted">Clientes</h6><strong class="fs-3 text-success">{{ resumen.clientes }}</strong></div></div></div>
+    <div class="col-md-4"><div class="card h-100 shadow-sm"><div class="card-body"><h6 class="text-muted">Ventas demostrativas</h6><strong class="fs-3 text-success">${{ '%.2f'|format(resumen.ventas_hoy) }}</strong></div></div></div>
 </section>
 
 
