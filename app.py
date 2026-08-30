@@ -1,7 +1,8 @@
-from flask import Flask, render_template
-
+from flask import Flask, render_template, request, redirect, url_for
+from forms.producto_form import ProductoForm
 app = Flask(__name__)
-
+app.config["SECRET_KEY"] = "tu_clave_secreta"
+app.config["WTF_CSRF_ENABLED"] = False
 farmacia = {
     "nombre": "Farmacia SaludPlus",
     "eslogan": "Tu salud, nuestra prioridad",
@@ -50,11 +51,29 @@ def inicio():
 
 
 # Módulo Productos
-@app.route("/productos")
+@app.route("/productos", methods=["GET", "POST"])
 def productos():
-    return render_template("productos.html", productos=productos_demo)
+    form = ProductoForm()
 
+    if form.validate_on_submit():
+        nuevo_producto = {
+            "nombre": form.nombre.data,
+            "dosis": form.dosis.data,
+            "categoria": form.categoria.data,
+            "presentacion": form.presentacion.data,
+            "precio": form.precio.data,
+            "stock": form.stock.data
+        }
 
+        productos_demo.append(nuevo_producto)
+
+        return redirect(url_for("productos"))
+
+    return render_template(
+        "productos.html",
+        productos=productos_demo,
+        form=form
+    )
 # Módulo Clientes
 @app.route("/clientes")
 def clientes():
