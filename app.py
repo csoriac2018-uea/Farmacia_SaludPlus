@@ -4,7 +4,7 @@ import sqlite3
 import os
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "tu_clave_secreta"
-app.config["WTF_CSRF_ENABLED"] = False
+
 farmacia = {
     "nombre": "Farmacia SaludPlus",
     "eslogan": "Tu salud, nuestra prioridad",
