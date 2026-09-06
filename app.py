@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from forms.producto_form import ProductoForm
+import sqlite3
+import os
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "tu_clave_secreta"
 app.config["WTF_CSRF_ENABLED"] = False
@@ -17,6 +19,56 @@ productos_demo = [
     {"nombre": "Jarabe para la tos", "dosis": "120 ml", "categoria": "Respiratorio", "presentacion": "Frasco 120 ml", "precio": 4.50, "stock": 8},
     {"nombre": "Suero fisiológico", "dosis": "0.9%", "categoria": "Primeros auxilios", "presentacion": "Frasco 100 ml", "precio": 1.80, "stock": 0},
 ]
+# Configuración de la base de datos SQLite
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "data", "farmacia.db")
+
+
+def obtener_conexion():
+    conexion = sqlite3.connect(DB_PATH)
+    conexion.row_factory = sqlite3.Row
+    return conexion
+
+
+def inicializar_base_datos():
+    conexion = obtener_conexion()
+
+    conexion.execute("""
+        CREATE TABLE IF NOT EXISTS productos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            dosis TEXT NOT NULL,
+            categoria TEXT NOT NULL,
+            presentacion TEXT NOT NULL,
+            precio REAL NOT NULL,
+            stock INTEGER NOT NULL
+        )
+    """)
+
+    cantidad = conexion.execute(
+        "SELECT COUNT(*) FROM productos"
+    ).fetchone()[0]
+
+    if cantidad == 0:
+        for producto in productos_demo:
+            conexion.execute("""
+                INSERT INTO productos
+                (nombre, dosis, categoria, presentacion, precio, stock)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                producto["nombre"],
+                producto["dosis"],
+                producto["categoria"],
+                producto["presentacion"],
+                producto["precio"],
+                producto["stock"]
+            ))
+
+    conexion.commit()
+    conexion.close()
+
+
+inicializar_base_datos()
 
 clientes_demo = [
     {"nombre": "María González", "cedula": "0912345678", "telefono": "0991234567", "correo": "maria@email.com", "activo": True},
@@ -42,11 +94,20 @@ facturas_demo = [
 # Página principal
 @app.route("/")
 def inicio():
+    conexion = obtener_conexion()
+
+    cantidad_productos = conexion.execute(
+        "SELECT COUNT(*) FROM productos"
+    ).fetchone()[0]
+
+    conexion.close()
+
     resumen = {
-        "productos": len(productos_demo),
+        "productos": cantidad_productos,
         "clientes": len(clientes_demo),
         "ventas_hoy": sum(factura["total"] for factura in facturas_demo),
     }
+
     return render_template("index.html", farmacia=farmacia, resumen=resumen)
 
 
@@ -56,24 +117,42 @@ def productos():
     form = ProductoForm()
 
     if form.validate_on_submit():
-        nuevo_producto = {
-            "nombre": form.nombre.data,
-            "dosis": form.dosis.data,
-            "categoria": form.categoria.data,
-            "presentacion": form.presentacion.data,
-            "precio": form.precio.data,
-            "stock": form.stock.data
-        }
+        conexion = obtener_conexion()
 
-        productos_demo.append(nuevo_producto)
+        conexion.execute("""
+            INSERT INTO productos
+            (nombre, dosis, categoria, presentacion, precio, stock)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            form.nombre.data,
+            form.dosis.data,
+            form.categoria.data,
+            form.presentacion.data,
+            form.precio.data,
+            form.stock.data
+        ))
+
+        conexion.commit()
+        conexion.close()
 
         return redirect(url_for("productos"))
 
+    conexion = obtener_conexion()
+
+    productos = conexion.execute("""
+        SELECT id, nombre, dosis, categoria, presentacion, precio, stock
+        FROM productos
+        ORDER BY id
+    """).fetchall()
+
+    conexion.close()
+
     return render_template(
         "productos.html",
-        productos=productos_demo,
+        productos=productos,
         form=form
     )
+
 # Módulo Clientes
 @app.route("/clientes")
 def clientes():
@@ -95,6 +174,12 @@ def facturacion():
         "productos_vendidos": 67,
     }
     return render_template("facturacion.html", facturas=facturas_demo, resumen=resumen)
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
