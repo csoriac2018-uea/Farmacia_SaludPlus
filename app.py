@@ -1,10 +1,85 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask_login import LoginManager, login_user, login_required, logout_user
+from models import Usuario
 from forms.producto_form import ProductoForm
 from conexion.conexion import obtener_conexion
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "tu_clave_secreta"
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+
+@login_manager.user_loader
+def cargar_usuario(user_id):
+    conexion = obtener_conexion()
+    cursor = conexion.cursor(dictionary=True)
+
+    cursor.execute(
+        "SELECT * FROM usuarios WHERE id = %s",
+        (user_id,)
+    )
+
+    usuario = cursor.fetchone()
+
+    cursor.close()
+    conexion.close()
+
+    if usuario:
+        return Usuario(
+            usuario["id"],
+            usuario["nombre"],
+            usuario["correo"],
+            usuario["password"]
+        )
+
+    return None
+# =========================
+# LOGIN
+# =========================
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+
+    if request.method == "POST":
+
+        correo = request.form["correo"]
+        password = request.form["password"]
+
+        conexion = obtener_conexion()
+        cursor = conexion.cursor(dictionary=True)
+
+        cursor.execute(
+            "SELECT * FROM usuarios WHERE correo = %s",
+            (correo,)
+        )
+
+        usuario = cursor.fetchone()
+
+        cursor.close()
+        conexion.close()
+
+        if usuario and usuario["password"] == password:
+
+            usuario_obj = Usuario(
+                usuario["id"],
+                usuario["nombre"],
+                usuario["correo"],
+                usuario["password"]
+            )
+
+            login_user(usuario_obj)
+
+            return redirect(url_for("inicio"))
+
+        return render_template(
+            "login.html",
+            error="Correo o contraseña incorrectos"
+        )
+
+    return render_template("login.html")
 
 farmacia = {
     "nombre": "Farmacia SaludPlus",
@@ -352,6 +427,20 @@ def facturacion():
         resumen=resumen
     )
 
+
+
+
+# =========================
+# CERRAR SESIÓN
+# =========================
+
+@app.route("/logout")
+@login_required
+def logout():
+
+    logout_user()
+
+    return redirect(url_for("login"))
 
 # =========================
 # EJECUTAR APLICACIÓN
