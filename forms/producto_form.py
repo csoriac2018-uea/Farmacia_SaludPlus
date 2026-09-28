@@ -12,22 +12,15 @@ class ProductoForm(FlaskForm):
 
     categoria = SelectField(
         "Categoría",
-        choices=[
-            ("Medicamentos", "Medicamentos"),
-            ("Vitaminas", "Vitaminas"),
-            ("Higiene", "Higiene"),
-            ("Primeros auxilios", "Primeros auxilios")
-        ],
+        choices=[],
+        coerce=int,
         validators=[DataRequired()]
     )
 
-    dosis = StringField(
-        "Dosis o presentación",
-        validators=[DataRequired()]
-    )
-
-    presentacion = StringField(
-        "Presentación",
+    proveedor = SelectField(
+        "Proveedor",
+        choices=[],
+        coerce=int,
         validators=[DataRequired()]
     )
 

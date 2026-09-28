@@ -2,20 +2,27 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user
 from models import Usuario
 from forms.producto_form import ProductoForm
-from conexion.conexion import obtener_conexion
+from conexion.conexion import obtener_conexion, obtener_cursor
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "tu_clave_secreta"
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
 
+# =========================
+# CARGAR USUARIO
+# =========================
+
 @login_manager.user_loader
 def cargar_usuario(user_id):
+
     conexion = obtener_conexion()
-    cursor = conexion.cursor(dictionary=True)
+    cursor = obtener_cursor(conexion)
 
     cursor.execute(
         "SELECT * FROM usuarios WHERE id = %s",
@@ -36,6 +43,8 @@ def cargar_usuario(user_id):
         )
 
     return None
+
+
 # =========================
 # LOGIN
 # =========================
@@ -49,7 +58,7 @@ def login():
         password = request.form["password"]
 
         conexion = obtener_conexion()
-        cursor = conexion.cursor(dictionary=True)
+        cursor = obtener_cursor(conexion)
 
         cursor.execute(
             "SELECT * FROM usuarios WHERE correo = %s",
@@ -80,6 +89,11 @@ def login():
         )
 
     return render_template("login.html")
+
+
+# =========================
+# DATOS DE LA FARMACIA
+# =========================
 
 farmacia = {
     "nombre": "Farmacia SaludPlus",
@@ -208,10 +222,14 @@ facturas_demo = [
 def inicio():
 
     conexion = obtener_conexion()
-    cursor = conexion.cursor()
+    cursor = obtener_cursor(conexion)
 
-    cursor.execute("SELECT COUNT(*) FROM productos")
-    cantidad_productos = cursor.fetchone()[0]
+    cursor.execute("""
+        SELECT COUNT(*) AS total
+        FROM productos
+    """)
+
+    cantidad_productos = cursor.fetchone()["total"]
 
     cursor.close()
     conexion.close()
@@ -220,8 +238,9 @@ def inicio():
         "productos": cantidad_productos,
         "clientes": len(clientes_demo),
         "ventas_hoy": sum(
-            factura["total"] for factura in facturas_demo
-        ),
+            factura["total"]
+            for factura in facturas_demo
+        )
     }
 
     return render_template(
@@ -240,23 +259,75 @@ def productos():
 
     form = ProductoForm()
 
+    # =========================
+    # CARGAR CATEGORÍAS
+    # =========================
+
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    cursor.execute("""
+        SELECT id, nombre
+        FROM categorias
+        ORDER BY nombre
+    """)
+
+    categorias = cursor.fetchall()
+
+    # =========================
+    # CARGAR PROVEEDORES
+    # =========================
+
+    cursor.execute("""
+        SELECT id, nombre
+        FROM proveedores
+        ORDER BY nombre
+    """)
+
+    proveedores = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
+
+    # =========================
+    # CREAR OPCIONES DEL FORMULARIO
+    # =========================
+
+    form.categoria.choices = [
+        (categoria["id"], categoria["nombre"])
+        for categoria in categorias
+    ]
+
+    form.proveedor.choices = [
+        (proveedor["id"], proveedor["nombre"])
+        for proveedor in proveedores
+    ]
+
+    # =========================
     # AGREGAR PRODUCTO
+    # =========================
+
     if form.validate_on_submit():
 
         conexion = obtener_conexion()
-        cursor = conexion.cursor()
+        cursor = obtener_cursor(conexion)
 
         cursor.execute("""
             INSERT INTO productos
-            (nombre, dosis, categoria, presentacion, precio, stock)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            (
+                nombre,
+                precio,
+                stock,
+                categoria_id,
+                proveedor_id
+            )
+            VALUES (%s, %s, %s, %s, %s)
         """, (
             form.nombre.data,
-            form.dosis.data,
-            form.categoria.data,
-            form.presentacion.data,
             form.precio.data,
-            form.stock.data
+            form.stock.data,
+            form.categoria.data,
+            form.proveedor.data
         ))
 
         conexion.commit()
@@ -266,15 +337,27 @@ def productos():
 
         return redirect(url_for("productos"))
 
-    # CONSULTAR PRODUCTOS
+    # =========================
+    # CONSULTAR PRODUCTOS CON JOIN
+    # =========================
+
     conexion = obtener_conexion()
-    cursor = conexion.cursor(dictionary=True)
+    cursor = obtener_cursor(conexion)
 
     cursor.execute("""
-        SELECT id, nombre, dosis, categoria,
-               presentacion, precio, stock
-        FROM productos
-        ORDER BY id
+        SELECT
+            p.id,
+            p.nombre,
+            p.precio,
+            p.stock,
+            c.nombre AS categoria,
+            pr.nombre AS proveedor
+        FROM productos p
+        LEFT JOIN categorias c
+            ON p.categoria_id = c.id
+        LEFT JOIN proveedores pr
+            ON p.proveedor_id = pr.id
+        ORDER BY p.id
     """)
 
     productos = cursor.fetchall()
@@ -297,9 +380,12 @@ def productos():
 def editar_producto(id):
 
     conexion = obtener_conexion()
-    cursor = conexion.cursor(dictionary=True)
+    cursor = obtener_cursor(conexion)
 
-    # Buscar producto
+    # =========================
+    # BUSCAR PRODUCTO
+    # =========================
+
     cursor.execute(
         "SELECT * FROM productos WHERE id = %s",
         (id,)
@@ -308,34 +394,31 @@ def editar_producto(id):
     producto = cursor.fetchone()
 
     if producto is None:
+
         cursor.close()
         conexion.close()
+
         return redirect(url_for("productos"))
 
-    # Guardar cambios
+    # =========================
+    # GUARDAR CAMBIOS
+    # =========================
+
     if request.method == "POST":
 
         nombre = request.form["nombre"]
-        dosis = request.form["dosis"]
-        categoria = request.form["categoria"]
-        presentacion = request.form["presentacion"]
         precio = request.form["precio"]
         stock = request.form["stock"]
 
         cursor.execute("""
             UPDATE productos
-            SET nombre = %s,
-                dosis = %s,
-                categoria = %s,
-                presentacion = %s,
+            SET
+                nombre = %s,
                 precio = %s,
                 stock = %s
             WHERE id = %s
         """, (
             nombre,
-            dosis,
-            categoria,
-            presentacion,
             precio,
             stock,
             id
@@ -365,7 +448,7 @@ def editar_producto(id):
 def eliminar_producto(id):
 
     conexion = obtener_conexion()
-    cursor = conexion.cursor()
+    cursor = obtener_cursor(conexion)
 
     cursor.execute(
         "DELETE FROM productos WHERE id = %s",
@@ -387,9 +470,29 @@ def eliminar_producto(id):
 @app.route("/clientes")
 def clientes():
 
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    cursor.execute("""
+        SELECT
+            id,
+            nombre,
+            cedula,
+            telefono,
+            correo,
+            activo
+        FROM clientes
+        ORDER BY id
+    """)
+
+    clientes = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
+
     return render_template(
         "clientes.html",
-        clientes=clientes_demo
+        clientes=clientes
     )
 
 
@@ -416,7 +519,8 @@ def facturacion():
     resumen = {
         "cantidad": len(facturas_demo),
         "ventas": sum(
-            factura["total"] for factura in facturas_demo
+            factura["total"]
+            for factura in facturas_demo
         ),
         "productos_vendidos": 67,
     }
@@ -426,8 +530,6 @@ def facturacion():
         facturas=facturas_demo,
         resumen=resumen
     )
-
-
 
 
 # =========================
@@ -441,6 +543,7 @@ def logout():
     logout_user()
 
     return redirect(url_for("login"))
+
 
 # =========================
 # EJECUTAR APLICACIÓN
