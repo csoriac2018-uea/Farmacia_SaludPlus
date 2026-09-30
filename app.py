@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
 from models import Usuario
 from forms.producto_form import ProductoForm
 from conexion.conexion import obtener_conexion, obtener_cursor
@@ -67,21 +68,59 @@ def login():
 
         usuario = cursor.fetchone()
 
+        if usuario:
+
+            password_guardada = usuario["password"]
+
+            # Verificar contraseña cifrada
+            try:
+                password_correcta = check_password_hash(
+                    password_guardada,
+                    password
+                )
+
+            except ValueError:
+                # Compatibilidad temporal con contraseña antigua
+                password_correcta = (
+                    password_guardada == password
+                )
+
+                # Convertir la contraseña antigua a hash
+                if password_correcta:
+
+                    nuevo_hash = generate_password_hash(
+                        password
+                    )
+
+                    cursor.execute("""
+                        UPDATE usuarios
+                        SET password = %s
+                        WHERE id = %s
+                    """, (
+                        nuevo_hash,
+                        usuario["id"]
+                    ))
+
+                    conexion.commit()
+
+            if password_correcta:
+
+                usuario_obj = Usuario(
+                    usuario["id"],
+                    usuario["nombre"],
+                    usuario["correo"],
+                    usuario["password"]
+                )
+
+                login_user(usuario_obj)
+
+                cursor.close()
+                conexion.close()
+
+                return redirect(url_for("inicio"))
+
         cursor.close()
         conexion.close()
-
-        if usuario and usuario["password"] == password:
-
-            usuario_obj = Usuario(
-                usuario["id"],
-                usuario["nombre"],
-                usuario["correo"],
-                usuario["password"]
-            )
-
-            login_user(usuario_obj)
-
-            return redirect(url_for("inicio"))
 
         return render_template(
             "login.html",
@@ -377,6 +416,7 @@ def productos():
 # =========================
 
 @app.route("/productos/editar/<int:id>", methods=["GET", "POST"])
+@login_required
 def editar_producto(id):
 
     conexion = obtener_conexion()
@@ -445,6 +485,7 @@ def editar_producto(id):
 # =========================
 
 @app.route("/productos/eliminar/<int:id>", methods=["POST"])
+@login_required
 def eliminar_producto(id):
 
     conexion = obtener_conexion()
@@ -462,12 +503,115 @@ def eliminar_producto(id):
 
     return redirect(url_for("productos"))
 
+# =========================
+# CATEGORÍAS
+# =========================
+
+@app.route("/categorias", methods=["GET", "POST"])
+@login_required
+def categorias():
+
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    if request.method == "POST":
+
+        nombre = request.form["nombre"]
+
+        cursor.execute("""
+            INSERT INTO categorias (nombre)
+            VALUES (%s)
+        """, (nombre,))
+
+        conexion.commit()
+
+    cursor.execute("""
+        SELECT id, nombre
+        FROM categorias
+        ORDER BY id
+    """)
+
+    categorias = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
+
+    return render_template(
+        "categorias.html",
+        categorias=categorias
+    )
+
+
+@app.route("/categorias/editar/<int:id>", methods=["GET", "POST"])
+@login_required
+def editar_categoria(id):
+
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    if request.method == "POST":
+
+        nombre = request.form["nombre"]
+
+        cursor.execute("""
+            UPDATE categorias
+            SET nombre = %s
+            WHERE id = %s
+        """, (
+            nombre,
+            id
+        ))
+
+        conexion.commit()
+
+        cursor.close()
+        conexion.close()
+
+        return redirect(url_for("categorias"))
+
+    cursor.execute("""
+        SELECT id, nombre
+        FROM categorias
+        WHERE id = %s
+    """, (id,))
+
+    categoria = cursor.fetchone()
+
+    cursor.close()
+    conexion.close()
+
+    return render_template(
+        "editar_categoria.html",
+        categoria=categoria
+    )
+
+
+@app.route("/categorias/eliminar/<int:id>", methods=["POST"])
+@login_required
+def eliminar_categoria(id):
+
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    cursor.execute("""
+        DELETE FROM categorias
+        WHERE id = %s
+    """, (id,))
+
+    conexion.commit()
+
+    cursor.close()
+    conexion.close()
+
+    return redirect(url_for("categorias"))
+
 
 # =========================
 # CLIENTES
 # =========================
 
 @app.route("/clientes")
+@login_required
 def clientes():
 
     conexion = obtener_conexion()
@@ -500,13 +644,117 @@ def clientes():
 # PROVEEDORES
 # =========================
 
-@app.route("/proveedores")
+@app.route("/proveedores", methods=["GET", "POST"])
+@login_required
 def proveedores():
+
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    if request.method == "POST":
+
+        nombre = request.form["nombre"]
+        telefono = request.form["telefono"]
+        email = request.form["email"]
+
+        cursor.execute("""
+            INSERT INTO proveedores
+            (nombre, telefono, email)
+            VALUES (%s, %s, %s)
+        """, (
+            nombre,
+            telefono,
+            email
+        ))
+
+        conexion.commit()
+
+    cursor.execute("""
+        SELECT id, nombre, telefono, email
+        FROM proveedores
+        ORDER BY id
+    """)
+
+    proveedores = cursor.fetchall()
+
+    cursor.close()
+    conexion.close()
 
     return render_template(
         "proveedores.html",
-        proveedores=proveedores_demo
+        proveedores=proveedores
     )
+
+
+@app.route("/proveedores/editar/<int:id>", methods=["GET", "POST"])
+@login_required
+def editar_proveedor(id):
+
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    if request.method == "POST":
+
+        nombre = request.form["nombre"]
+        telefono = request.form["telefono"]
+        email = request.form["email"]
+
+        cursor.execute("""
+            UPDATE proveedores
+            SET
+                nombre = %s,
+                telefono = %s,
+                email = %s
+            WHERE id = %s
+        """, (
+            nombre,
+            telefono,
+            email,
+            id
+        ))
+
+        conexion.commit()
+
+        cursor.close()
+        conexion.close()
+
+        return redirect(url_for("proveedores"))
+
+    cursor.execute("""
+        SELECT id, nombre, telefono, email
+        FROM proveedores
+        WHERE id = %s
+    """, (id,))
+
+    proveedor = cursor.fetchone()
+
+    cursor.close()
+    conexion.close()
+
+    return render_template(
+        "editar_proveedor.html",
+        proveedor=proveedor
+    )
+
+
+@app.route("/proveedores/eliminar/<int:id>", methods=["POST"])
+@login_required
+def eliminar_proveedor(id):
+
+    conexion = obtener_conexion()
+    cursor = obtener_cursor(conexion)
+
+    cursor.execute("""
+        DELETE FROM proveedores
+        WHERE id = %s
+    """, (id,))
+
+    conexion.commit()
+
+    cursor.close()
+    conexion.close()
+
+    return redirect(url_for("proveedores"))
 
 
 # =========================
@@ -514,6 +762,7 @@ def proveedores():
 # =========================
 
 @app.route("/facturacion")
+@login_required
 def facturacion():
 
     resumen = {

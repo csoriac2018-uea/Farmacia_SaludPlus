@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Editar categoría</h2>
+
+    <div class="card mt-4">
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                <div class="mb-3">
+
+                    <label for="nombre" class="form-label">
+                        Nombre de la categoría
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="nombre"
+                        name="nombre"
+                        value="{{ categoria.nombre }}"
+                        required
+                    >
+
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Guardar cambios
+                </button>
+
+                <a
+                    href="{{ url_for('categorias') }}"
+                    class="btn btn-secondary"
+                >
+                    Cancelar
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

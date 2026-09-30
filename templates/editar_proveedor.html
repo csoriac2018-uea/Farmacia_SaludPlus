@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Editar proveedor</h2>
+
+<form method="POST">
+
+    <label>Nombre:</label>
+    <input
+        type="text"
+        name="nombre"
+        value="{{ proveedor.nombre }}"
+        required
+    >
+
+    <br><br>
+
+    <label>Teléfono:</label>
+    <input
+        type="text"
+        name="telefono"
+        value="{{ proveedor.telefono }}"
+        required
+    >
+
+    <br><br>
+
+    <label>Email:</label>
+    <input
+        type="email"
+        name="email"
+        value="{{ proveedor.email }}"
+        required
+    >
+
+    <br><br>
+
+    <button type="submit">Guardar cambios</button>
+
+    <a href="{{ url_for('proveedores') }}">
+        Cancelar
+    </a>
+
+</form>
+
+{% endblock %}

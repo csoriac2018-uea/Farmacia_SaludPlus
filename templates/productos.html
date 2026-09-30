@@ -1,315 +1,91 @@
 {% extends "base.html" %}
 
-{% block title %}Productos | Farmacia SaludPlus{% endblock %}
-
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<h2>Proveedores</h2>
 
-    <div>
-        <h2 class="titulo-modulo">💊 Productos</h2>
+<form method="POST">
 
-        <p class="text-muted mb-0">
-            Catálogo de productos disponibles en Farmacia SaludPlus.
-        </p>
-    </div>
+    <input
+        type="text"
+        name="nombre"
+        placeholder="Nombre del proveedor"
+        required
+    >
 
-    <span class="badge bg-success fs-6">
-        {{ productos|length }} productos
-    </span>
+    <input
+        type="text"
+        name="telefono"
+        placeholder="Teléfono"
+        required
+    >
 
-</div>
+    <input
+        type="email"
+        name="email"
+        placeholder="Correo electrónico"
+        required
+    >
 
+    <button type="submit">
+        Agregar proveedor
+    </button>
 
-<div class="card shadow-sm">
+</form>
 
-    <div class="card-body">
+<hr>
 
-        <!-- FORMULARIO PARA AGREGAR -->
+<h3>Lista de proveedores</h3>
 
-        <h4 class="mb-3">Agregar nuevo producto</h4>
+<table border="1" cellpadding="8">
 
-        <form method="POST">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
 
-            {{ form.hidden_tag() }}
+    <tbody>
 
-            <div class="row g-3">
+        {% for proveedor in proveedores %}
 
-                <!-- NOMBRE -->
+        <tr>
 
-                <div class="col-md-6">
+            <td>{{ proveedor.id }}</td>
+            <td>{{ proveedor.nombre }}</td>
+            <td>{{ proveedor.telefono }}</td>
+            <td>{{ proveedor.email }}</td>
 
-                    {{ form.nombre.label(class="form-label") }}
+            <td>
 
-                    {{ form.nombre(
-                        class="form-control",
-                        placeholder="Ej. Paracetamol 500mg"
-                    ) }}
+                <a href="{{ url_for('editar_proveedor', id=proveedor.id) }}">
+                    Editar
+                </a>
 
-                    {% for error in form.nombre.errors %}
-                        <div class="text-danger small">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
+                <form
+                    method="POST"
+                    action="{{ url_for('eliminar_proveedor', id=proveedor.id) }}"
+                    style="display:inline;"
+                >
 
-                </div>
+                    <button type="submit">
+                        Eliminar
+                    </button>
 
+                </form>
 
-                <!-- CATEGORÍA -->
+            </td>
 
-                <div class="col-md-6">
+        </tr>
 
-                    {{ form.categoria.label(class="form-label") }}
+        {% endfor %}
 
-                    {{ form.categoria(class="form-select") }}
+    </tbody>
 
-                    {% for error in form.categoria.errors %}
-                        <div class="text-danger small">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- PROVEEDOR -->
-
-                <div class="col-md-6">
-
-                    {{ form.proveedor.label(class="form-label") }}
-
-                    {{ form.proveedor(class="form-select") }}
-
-                    {% for error in form.proveedor.errors %}
-                        <div class="text-danger small">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- PRECIO -->
-
-                <div class="col-md-3">
-
-                    {{ form.precio.label(class="form-label") }}
-
-                    {{ form.precio(
-                        class="form-control",
-                        placeholder="Ej. 2.50"
-                    ) }}
-
-                    {% for error in form.precio.errors %}
-                        <div class="text-danger small">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-
-                <!-- STOCK -->
-
-                <div class="col-md-3">
-
-                    {{ form.stock.label(class="form-label") }}
-
-                    {{ form.stock(
-                        class="form-control",
-                        placeholder="Ej. 50"
-                    ) }}
-
-                    {% for error in form.stock.errors %}
-                        <div class="text-danger small">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-
-            </div>
-
-
-            <div class="mt-3">
-
-                {{ form.submit(class="btn btn-success") }}
-
-            </div>
-
-        </form>
-
-
-        <hr class="my-4">
-
-
-        <!-- TABLA DE PRODUCTOS -->
-
-        <h4 class="mb-3">
-            Productos registrados
-        </h4>
-
-
-        <div class="table-responsive">
-
-            <table class="table table-hover align-middle">
-
-                <thead>
-
-                    <tr>
-
-                        <th>#</th>
-                        <th>Producto</th>
-                        <th>Categoría</th>
-                        <th>Proveedor</th>
-                        <th>Precio</th>
-                        <th>Stock</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for producto in productos %}
-
-                    <tr>
-
-                        <td>
-                            {{ loop.index }}
-                        </td>
-
-
-                        <td>
-                            <strong>
-                                {{ producto.nombre }}
-                            </strong>
-                        </td>
-
-
-                        <td>
-                            {% if producto.categoria %}
-                                {{ producto.categoria }}
-                            {% else %}
-                                <span class="text-muted">
-                                    Sin categoría
-                                </span>
-                            {% endif %}
-                        </td>
-
-
-                        <td>
-                            {% if producto.proveedor %}
-                                {{ producto.proveedor }}
-                            {% else %}
-                                <span class="text-muted">
-                                    Sin proveedor
-                                </span>
-                            {% endif %}
-                        </td>
-
-
-                        <td>
-                            ${{ '%.2f'|format(producto.precio) }}
-                        </td>
-
-
-                        <td>
-                            {{ producto.stock }}
-                        </td>
-
-
-                        <td>
-
-                            {% if producto.stock == 0 %}
-
-                                <span class="badge bg-danger">
-                                    Agotado
-                                </span>
-
-                            {% elif producto.stock <= 10 %}
-
-                                <span class="badge bg-warning text-dark">
-                                    Bajo stock
-                                </span>
-
-                            {% else %}
-
-                                <span class="badge bg-success">
-                                    Disponible
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-                        <td>
-
-                            <a
-                                href="{{ url_for('editar_producto', id=producto.id) }}"
-                                class="btn btn-sm btn-warning"
-                            >
-                                ✏️ Editar
-                            </a>
-
-
-                            <form
-                                method="POST"
-                                action="{{ url_for('eliminar_producto', id=producto.id) }}"
-                                style="display:inline;"
-                                onsubmit="return confirm('¿Está seguro de eliminar este producto?');"
-                            >
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-danger"
-                                >
-                                    🗑️ Eliminar
-                                </button>
-
-                            </form>
-
-                        </td>
-
-                    </tr>
-
-
-                    {% else %}
-
-                    <tr>
-
-                        <td
-                            colspan="8"
-                            class="text-center text-muted"
-                        >
-                            No hay productos registrados.
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<div class="alert alert-info mt-4">
-
-    <strong>Información:</strong>
-
-    Los productos se gestionan directamente desde la base de datos mediante Flask y SQL.
-
-</div>
+</table>
 
 {% endblock %}

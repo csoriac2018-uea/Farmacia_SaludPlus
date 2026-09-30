@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestión de Categorías</h2>
+        <a href="{{ url_for('inicio') }}" class="btn btn-secondary">
+            Volver al inicio
+        </a>
+    </div>
+
+    <!-- FORMULARIO PARA CREAR -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Agregar categoría
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST">
+
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">
+                        Nombre de la categoría
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="nombre"
+                        name="nombre"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Agregar categoría
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+    <!-- LISTADO -->
+    <div class="card">
+
+        <div class="card-header">
+            Categorías registradas
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-striped">
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for categoria in categorias %}
+
+                        <tr>
+
+                            <td>{{ categoria.id }}</td>
+
+                            <td>{{ categoria.nombre }}</td>
+
+                            <td>
+
+                                <a
+                                    href="{{ url_for('editar_categoria', id=categoria.id) }}"
+                                    class="btn btn-warning btn-sm"
+                                >
+                                    Editar
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('eliminar_categoria', id=categoria.id) }}"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('¿Deseas eliminar esta categoría?');"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn btn-danger btn-sm"
+                                    >
+                                        Eliminar
+                                    </button>
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

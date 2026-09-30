@@ -1,8 +1,93 @@
 {% extends "base.html" %}
+
 {% block title %}Proveedores | Farmacia SaludPlus{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="titulo-modulo">🚚 Proveedores</h2><p class="text-muted mb-0">Registro de proveedores de medicamentos y productos farmacéuticos.</p></div><span class="badge bg-info text-dark fs-6">{{ proveedores|length }} proveedores</span></div>
-<div class="card shadow-sm"><div class="card-body"><div class="table-responsive"><table class="table table-hover align-middle"><thead><tr><th>#</th><th>Proveedor</th><th>RUC</th><th>Teléfono</th><th>Correo</th><th>Producto suministrado</th><th>Estado</th></tr></thead><tbody>
-{% for proveedor in proveedores %}<tr><td>{{ loop.index }}</td><td><strong>{{ proveedor.nombre|upper }}</strong></td><td>{{ proveedor.ruc }}</td><td>{{ proveedor.telefono }}</td><td>{{ proveedor.correo }}</td><td>{{ proveedor.producto }}</td><td>{% if proveedor.activo %}<span class="badge bg-success">Activo</span>{% else %}<span class="badge bg-warning text-dark">Pendiente</span>{% endif %}</td></tr>{% else %}<tr><td colspan="7" class="text-center text-muted">No hay proveedores registrados.</td></tr>{% endfor %}
-</tbody></table></div></div></div>
+
+<h2>Proveedores</h2>
+
+<form method="POST">
+
+    <input
+        type="text"
+        name="nombre"
+        placeholder="Nombre del proveedor"
+        required
+    >
+
+    <input
+        type="text"
+        name="telefono"
+        placeholder="Teléfono"
+        required
+    >
+
+    <input
+        type="email"
+        name="email"
+        placeholder="Correo electrónico"
+        required
+    >
+
+    <button type="submit">
+        Agregar proveedor
+    </button>
+
+</form>
+
+<hr>
+
+<h3>Lista de proveedores</h3>
+
+<table border="1" cellpadding="8">
+
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for proveedor in proveedores %}
+
+        <tr>
+
+            <td>{{ proveedor.id }}</td>
+            <td>{{ proveedor.nombre }}</td>
+            <td>{{ proveedor.telefono }}</td>
+            <td>{{ proveedor.email }}</td>
+
+            <td>
+
+                <a href="{{ url_for('editar_proveedor', id=proveedor.id) }}">
+                    Editar
+                </a>
+
+                <form
+                    method="POST"
+                    action="{{ url_for('eliminar_proveedor', id=proveedor.id) }}"
+                    style="display:inline;"
+                >
+
+                    <button type="submit">
+                        Eliminar
+                    </button>
+
+                </form>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
 {% endblock %}
